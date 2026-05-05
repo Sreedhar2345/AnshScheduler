@@ -1,0 +1,59 @@
+name: TaskReminderApp
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: com.saiansh.TaskReminderApp
+    SWIFT_VERSION: 5.0
+    TARGETED_DEVICE_FAMILY: "1,2"
+    SUPPORTS_MACCATALYST: NO
+configs:
+  Debug: debug
+  Release: release
+targets:
+  TaskReminderApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: TaskReminderApp
+        includes:
+          - "**/*.swift"
+    settings:
+      base:
+        INFOPLIST_KEY_CFBundleDisplayName: Task Reminder
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_PHPhotoLibraryUsageDescription: Allow photo access to attach images to tasks and set personal backgrounds.
+        INFOPLIST_KEY_PHPhotoLibraryAddUsageDescription: Allow saving and reusing selected images for tasks and personal themes.
+        INFOPLIST_KEY_NSUserNotificationsUsageDescription: Allow notifications so task reminders can alert you at scheduled times.
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+    scheme:
+      gatherCoverageData: false
+      testTargets:
+        - TaskReminderAppTests
+        - TaskReminderAppUITests
+  TaskReminderAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: TaskReminderAppTests
+        includes:
+          - "**/*.swift"
+    dependencies:
+      - target: TaskReminderApp
+  TaskReminderAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: TaskReminderAppUITests
+        includes:
+          - "**/*.swift"
+    dependencies:
+      - target: TaskReminderApp
