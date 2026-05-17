@@ -14,6 +14,7 @@ struct AnshSchedulerTaskEditorView: View {
     @State private var previewImage: UIImage?
     @State private var selectedPhotoItem: PhotosPickerItem?
     @State private var selectedPreset: AnshSchedulerPresetTaskImage?
+    @State private var voiceMemoSelection: AnshSchedulerVoiceMemoSelection
     @State private var isPhotoLoading = false
     @State private var isSaving = false
     @State private var frequency: AnshReminderFrequency
@@ -45,6 +46,9 @@ struct AnshSchedulerTaskEditorView: View {
         _oneTimeReminderDate = State(initialValue: initialTime)
         _selectedPreset = State(
             initialValue: Self.matchingPreset(for: editingTask?.imageData)
+        )
+        _voiceMemoSelection = State(
+            initialValue: editingTask?.voiceMemoSelection ?? .none
         )
     }
 
@@ -116,6 +120,10 @@ struct AnshSchedulerTaskEditorView: View {
                                     .font(.subheadline)
                                 }
                             }
+                        }
+
+                        labeledField(title: "Voice Memo") {
+                            AnshSchedulerVoiceMemoPicker(selection: $voiceMemoSelection)
                         }
 
                         labeledField(title: "Frequency") {
@@ -314,7 +322,8 @@ struct AnshSchedulerTaskEditorView: View {
             imageData: taskImageData,
             frequency: frequency,
             weeklyWeekday: resolvedWeekday,
-            dayOfMonth: resolvedDayOfMonth
+            dayOfMonth: resolvedDayOfMonth,
+            voiceMemoSelection: voiceMemoSelection
         )
     }
 

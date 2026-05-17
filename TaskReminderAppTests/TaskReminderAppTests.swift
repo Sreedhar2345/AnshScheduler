@@ -66,7 +66,8 @@ final class AnshSchedulerStoreTests: XCTestCase {
                 imageData: nil,
                 frequency: .daily,
                 weeklyWeekday: nil,
-                dayOfMonth: nil
+                dayOfMonth: nil,
+                voiceMemoSelection: .preset(.wakeUp)
             )
         )
         store.addScheduledTask(
@@ -76,7 +77,8 @@ final class AnshSchedulerStoreTests: XCTestCase {
                 imageData: Data([0x01]),
                 frequency: .weekly,
                 weeklyWeekday: 1,
-                dayOfMonth: nil
+                dayOfMonth: nil,
+                voiceMemoSelection: .none
             )
         )
 
@@ -93,7 +95,8 @@ final class AnshSchedulerStoreTests: XCTestCase {
                 imageData: Data([0x02]),
                 frequency: .monthly,
                 weeklyWeekday: nil,
-                dayOfMonth: 10
+                dayOfMonth: 10,
+                voiceMemoSelection: .none
             )
         )
 
@@ -118,7 +121,8 @@ final class AnshSchedulerStoreTests: XCTestCase {
                 imageData: nil,
                 frequency: .daily,
                 weeklyWeekday: nil,
-                dayOfMonth: nil
+                dayOfMonth: nil,
+                voiceMemoSelection: .none
             )
         )
 

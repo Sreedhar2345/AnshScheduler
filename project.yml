@@ -25,6 +25,8 @@ targets:
       - path: TaskReminderApp
         excludes:
           - Info.plist
+    resources:
+      - path: TaskReminderApp/Resources
     settings:
       base:
         GENERATE_INFOPLIST_FILE: NO

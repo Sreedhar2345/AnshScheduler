@@ -46,9 +46,18 @@ actor AnshSchedulerNotificationService {
         for (identifier, task) in desiredByID {
             let desiredComponents = task.notificationDateComponents(calendar: calendar)
             let repeats = task.repeatsReminder
+            let desiredSound = AnshSchedulerVoiceMemoService.notificationSoundFilename(
+                for: task.voiceMemoSelection
+            )
 
             if let existing = pendingByID[identifier],
-               notificationMatches(existing, task: task, components: desiredComponents, repeats: repeats) {
+               notificationMatches(
+                existing,
+                task: task,
+                components: desiredComponents,
+                repeats: repeats,
+                soundFilename: desiredSound
+               ) {
                 continue
             }
 
@@ -63,7 +72,11 @@ actor AnshSchedulerNotificationService {
             let content = UNMutableNotificationContent()
             content.title = AnshSchedulerConstants.appDisplayName
             content.body = task.name
-            content.sound = .default
+            content.sound = AnshSchedulerVoiceMemoService.notificationSound(for: task.voiceMemoSelection)
+            content.userInfo = [
+                AnshSchedulerNotificationUserInfoKey.taskID: task.id.uuidString,
+                AnshSchedulerNotificationUserInfoKey.voiceMemoID: task.voiceMemoStorageID ?? "",
+            ]
 
             let trigger = UNCalendarNotificationTrigger(dateMatching: desiredComponents, repeats: repeats)
             let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
@@ -75,7 +88,8 @@ actor AnshSchedulerNotificationService {
         _ request: UNNotificationRequest,
         task: AnshScheduledTask,
         components: DateComponents,
-        repeats: Bool
+        repeats: Bool,
+        soundFilename: String?
     ) -> Bool {
         guard request.content.title == AnshSchedulerConstants.appDisplayName,
               request.content.body == task.name,
@@ -84,6 +98,10 @@ actor AnshSchedulerNotificationService {
         }
 
         guard trigger.repeats == repeats else { return false }
+
+        let existingSound = request.content.userInfo[AnshSchedulerNotificationUserInfoKey.voiceMemoID] as? String ?? ""
+        let desiredSound = task.voiceMemoStorageID ?? ""
+        guard existingSound == desiredSound else { return false }
 
         return componentsMatch(trigger.dateComponents, components, frequency: task.frequency)
     }

@@ -6,10 +6,10 @@ struct AnshScheduledTask: Identifiable, Codable, Equatable, Sendable {
     var reminderTime: Date
     var imageData: Data?
     var frequency: AnshReminderFrequency
-    /// `Calendar` weekday (1 = Sunday … 7 = Saturday). Used when `frequency == .weekly`.
     var weeklyWeekday: Int?
-    /// Day of month (1–31). Used when `frequency == .monthly` or `.yearly`.
     var dayOfMonth: Int?
+    /// `preset.wakeUp`, `custom.<uuid>`, or nil for default notification sound.
+    var voiceMemoStorageID: String?
 
     init(
         id: UUID = UUID(),
@@ -18,7 +18,8 @@ struct AnshScheduledTask: Identifiable, Codable, Equatable, Sendable {
         imageData: Data? = nil,
         frequency: AnshReminderFrequency = .daily,
         weeklyWeekday: Int? = nil,
-        dayOfMonth: Int? = nil
+        dayOfMonth: Int? = nil,
+        voiceMemoStorageID: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -27,6 +28,7 @@ struct AnshScheduledTask: Identifiable, Codable, Equatable, Sendable {
         self.frequency = frequency
         self.weeklyWeekday = weeklyWeekday
         self.dayOfMonth = dayOfMonth
+        self.voiceMemoStorageID = voiceMemoStorageID
     }
 
     init(from decoder: Decoder) throws {
@@ -38,6 +40,11 @@ struct AnshScheduledTask: Identifiable, Codable, Equatable, Sendable {
         frequency = try container.decodeIfPresent(AnshReminderFrequency.self, forKey: .frequency) ?? .daily
         weeklyWeekday = try container.decodeIfPresent(Int.self, forKey: .weeklyWeekday)
         dayOfMonth = try container.decodeIfPresent(Int.self, forKey: .dayOfMonth)
+        voiceMemoStorageID = try container.decodeIfPresent(String.self, forKey: .voiceMemoStorageID)
+    }
+
+    var voiceMemoSelection: AnshSchedulerVoiceMemoSelection {
+        AnshSchedulerVoiceMemoSelection(storageIdentifier: voiceMemoStorageID) ?? .none
     }
 
     var repeatsReminder: Bool {
@@ -89,6 +96,7 @@ struct AnshScheduledTaskDraft: Equatable, Sendable {
     var frequency: AnshReminderFrequency
     var weeklyWeekday: Int?
     var dayOfMonth: Int?
+    var voiceMemoSelection: AnshSchedulerVoiceMemoSelection
 
     func makeTask(id: UUID = UUID()) -> AnshScheduledTask {
         AnshScheduledTask(
@@ -98,7 +106,8 @@ struct AnshScheduledTaskDraft: Equatable, Sendable {
             imageData: imageData,
             frequency: frequency,
             weeklyWeekday: weeklyWeekday,
-            dayOfMonth: dayOfMonth
+            dayOfMonth: dayOfMonth,
+            voiceMemoStorageID: voiceMemoSelection.storageIdentifier
         )
     }
 }
@@ -111,7 +120,8 @@ extension AnshScheduledTask {
             imageData: task.imageData,
             frequency: task.frequency,
             weeklyWeekday: task.weeklyWeekday,
-            dayOfMonth: task.dayOfMonth
+            dayOfMonth: task.dayOfMonth,
+            voiceMemoSelection: task.voiceMemoSelection
         )
     }
 }

@@ -11,22 +11,28 @@ enum AnshSchedulerFormatting {
 
     static func taskSummary(for task: AnshScheduledTask, calendar: Calendar = .current) -> String {
         let time = reminderTimeLabel(for: task.reminderTime)
+        let schedule: String
 
         switch task.frequency {
         case .daily:
-            return "Daily · \(time)"
+            schedule = "Daily · \(time)"
         case .weekly:
             let weekday = weekdayLabel(for: task.weeklyWeekday, calendar: calendar)
-            return "Weekly · \(weekday) · \(time)"
+            schedule = "Weekly · \(weekday) · \(time)"
         case .monthly:
             let day = task.dayOfMonth.map(String.init) ?? "—"
-            return "Monthly · day \(day) · \(time)"
+            schedule = "Monthly · day \(day) · \(time)"
         case .yearly:
             let monthDay = task.reminderTime.formatted(monthDayStyle)
-            return "Yearly · \(monthDay) · \(time)"
+            schedule = "Yearly · \(monthDay) · \(time)"
         case .oneTime:
-            return "One time · \(task.reminderTime.formatted(oneTimeStyle))"
+            schedule = "One time · \(task.reminderTime.formatted(oneTimeStyle))"
         }
+
+        if let voiceName = AnshSchedulerVoiceMemoService.displayName(for: task.voiceMemoSelection) {
+            return "\(schedule) · 🔊 \(voiceName)"
+        }
+        return schedule
     }
 
     static func weekdayLabel(for weekday: Int?, calendar: Calendar = .current) -> String {
