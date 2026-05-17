@@ -1,47 +1,48 @@
-# TaskReminderApp (iOS SwiftUI)
+# Ansh's Scheduler
 
-This repository contains a complete SwiftUI implementation for the requested task reminder app.
+iOS scheduler app that stores daily task reminders and sends local notifications at each task's scheduled time.
 
-## Features included
+## Open in Xcode
 
-- Home screen showing all tasks
-- Settings screen for:
-  - Create new task (name, scheduled time, optional uploaded task image)
-  - Edit task
-  - Delete task
-  - Theme selection (`Nature`, `Water`, `Personal`)
-  - Personal theme background image upload
-- Theme-based app background rendering
-- Local notifications scheduled at each task's selected time
-- Local persistence via `UserDefaults`
+1. Open `TaskReminderApp.xcodeproj` in Xcode.
+2. Select the **TaskReminderApp** target → **Signing & Capabilities** → choose your **Team**.
+3. Select an iPhone simulator or your device, then press **Run** (⌘R).
 
-## Generate Xcode project with XcodeGen
+If you change `project.yml`, regenerate the project (this also restores `Assets.xcassets` in the build):
 
-This repository includes a full `project.yml`.
+```bash
+rm -rf TaskReminderApp.xcodeproj
+xcodegen generate
+```
 
-1. Install XcodeGen (if needed):
+### If the app fails to launch on a physical device
 
-   ```bash
-   brew install xcodegen
-   ```
+1. **Product → Clean Build Folder** (⇧⌘K).
+2. On the iPhone, **delete** the old “Ansh's Scheduler” app.
+3. Re-open the project, confirm **Signing & Capabilities** has your team selected.
+4. Run again (⌘R).
 
-2. Generate the project:
+If Xcode still reports a SpringBoard / CoreDevice error, reboot the iPhone once, then try again.
 
-   ```bash
-   xcodegen generate
-   ```
+## Features
 
-3. Open the generated project:
+- **Home** — Lists all tasks (name + time). Shows **Create Task** when the list is empty.
+- **Settings** — **Add a New Task** or tap an existing task to edit.
+- **SAVE** — Persists tasks and schedules a repeating daily notification with the task name.
+- **Theme** — Light background `#9CD5FF`, dark background `#355872`, with high-contrast text in both modes.
+- **App icon** — Uses the uploaded image set in `Assets.xcassets/AppIcon.appiconset`.
 
-   ```bash
-   open TaskReminderApp.xcodeproj
-   ```
+## App-specific architecture
 
-4. In Xcode, set your Apple Developer Team under Signing.
-5. Build and run on simulator/device.
-6. Allow notifications when prompted so reminders fire.
+All types and storage keys are prefixed for **Ansh's Scheduler** only:
 
-## Test targets included
+- `AnshSchedulerStore`, `AnshScheduledTask`, `AnshSchedulerTheme`, etc.
+- UserDefaults suite: `{bundleId}.preferences`
+- Storage key: `{bundleId}.scheduledTasks.v1`
+- Notification IDs: `{bundleId}.dailyReminder.{taskId}`
 
-- `TaskReminderAppTests` (unit tests)
-- `TaskReminderAppUITests` (UI tests)
+Existing tasks saved under the older `ansh-scheduler.tasks` key are migrated automatically on first launch.
+
+## Notifications
+
+On first launch the app requests notification permission. Each task fires every day at its chosen time.

@@ -1,13 +1,15 @@
 import SwiftUI
 
 @main
-struct TaskReminderApp: App {
-    @StateObject private var store = AppStore()
+struct AnshSchedulerApp: App {
+    @StateObject private var schedulerStore = AnshSchedulerStore()
+    @StateObject private var navigationState = AnshSchedulerNavigationState()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(store)
+            AnshSchedulerRootView()
+                .environmentObject(schedulerStore)
+                .environmentObject(navigationState)
         }
     }
 }
