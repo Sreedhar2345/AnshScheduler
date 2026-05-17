@@ -1,0 +1,49 @@
+---
+description: Deploy Ansh's Scheduler to GitHub (Sreedhar2345/AnshScheduler)
+alwaysApply: true
+---
+
+# Deploy to GitHub — AnshScheduler
+
+When the user asks to **deploy**, **push**, **publish**, or **sync to GitHub**, use this repository:
+
+- **URL:** https://github.com/Sreedhar2345/AnshScheduler
+- **Remote:** `origin` → `https://github.com/Sreedhar2345/AnshScheduler.git`
+- **Branch:** `main`
+- **Project root:** `TaskReminderApp/` (contains `TaskReminderApp.xcodeproj`, `project.yml`)
+
+## Before committing
+
+1. Run `git status` and `git diff` from the project root.
+2. **Never commit:** `.env`, credentials, API keys, `xcuserdata/`, `DerivedData/`, `.DS_Store`.
+3. If `project.yml` changed, run `xcodegen generate` and include updated `TaskReminderApp.xcodeproj` in the commit.
+4. Only create a commit when the user explicitly asked to deploy/push/commit.
+
+## Commit message
+
+- One concise sentence on **why** (e.g. "Add weekly reminders and preset task images").
+- Use a HEREDOC for the message.
+
+## Push workflow
+
+```bash
+cd TaskReminderApp
+git add -A
+git status
+git commit -m "$(cat <<'EOF'
+Your message here.
+
+EOF
+)"
+git push -u origin main
+```
+
+## Git safety
+
+- Do **not** run `git config`, `git push --force` on `main`, or `--no-verify` unless the user explicitly requests it.
+- Do **not** amend commits unless user rules allow it and HEAD was created in this session and not pushed.
+- If push fails with auth errors, tell the user to run `gh auth login` or use a Personal Access Token; do not store tokens in the repo.
+
+## After a successful push
+
+Confirm the repo URL: https://github.com/Sreedhar2345/AnshScheduler
