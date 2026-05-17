@@ -7,13 +7,19 @@ struct AnshSchedulerTaskRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            AnshSchedulerTaskAvatar(imageData: task.imageData)
+            AnshSchedulerTaskAvatar(taskID: task.id, imageData: task.imageData)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(task.name)
                     .font(.headline)
                 Text(AnshSchedulerFormatting.taskSummary(for: task))
                     .font(.subheadline)
+                if let notes = task.trimmedNotes {
+                    Text(notes)
+                        .font(.caption)
+                        .foregroundStyle(theme.secondaryText)
+                        .lineLimit(2)
+                }
             }
             .foregroundStyle(theme.primaryText)
         }

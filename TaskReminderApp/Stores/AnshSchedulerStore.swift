@@ -38,7 +38,7 @@ final class AnshSchedulerStore: ObservableObject {
 
     func updateScheduledTask(id: UUID, with draft: AnshScheduledTaskDraft) {
         guard let index = scheduledTasks.firstIndex(where: { $0.id == id }) else { return }
-        var updated = draft.makeTask(id: id)
+        let updated = draft.makeTask(id: id)
         scheduledTasks.remove(at: index)
         scheduledTasks.insert(updated, at: Self.sortedInsertionIndex(for: updated, in: scheduledTasks))
         persistAndSyncNotifications()
@@ -60,7 +60,7 @@ final class AnshSchedulerStore: ObservableObject {
         guard notificationsEnabled else { return }
         notificationSyncTask?.cancel()
         let snapshot = scheduledTasks
-        notificationSyncTask = Task {
+        notificationSyncTask = Task(priority: .utility) {
             await AnshSchedulerNotificationService.shared.requestAuthorizationIfNeeded()
             await AnshSchedulerNotificationService.shared.syncReminders(for: snapshot)
         }

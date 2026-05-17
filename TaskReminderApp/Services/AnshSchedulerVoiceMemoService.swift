@@ -24,6 +24,21 @@ enum AnshSchedulerVoiceMemoService {
         preferences.set(data, forKey: customMemosDefaultsKey)
     }
 
+    static func deleteCustomVoiceMemo(id: UUID) {
+        var memos = customVoiceMemos()
+        guard let index = memos.firstIndex(where: { $0.id == id }) else { return }
+        let memo = memos[index]
+        memos.remove(at: index)
+        saveCustomVoiceMemos(memos)
+
+        if let cafURL = try? customSoundsDirectoryURL().appendingPathComponent(memo.notificationSoundFilename) {
+            try? FileManager.default.removeItem(at: cafURL)
+        }
+        if let libraryURL = try? librarySoundsDirectoryURL().appendingPathComponent(memo.notificationSoundFilename) {
+            try? FileManager.default.removeItem(at: libraryURL)
+        }
+    }
+
     static func displayName(for selection: AnshSchedulerVoiceMemoSelection) -> String? {
         switch selection {
         case .none:
@@ -61,26 +76,23 @@ enum AnshSchedulerVoiceMemoService {
         }
     }
 
+    static func cafDestinationURL(filename: String) throws -> URL {
+        try customSoundsDirectoryURL().appendingPathComponent(filename)
+    }
+
     @discardableResult
-    static func importCustomVoiceMemo(from sourceURL: URL, preferredName: String?) throws -> AnshSchedulerCustomVoiceMemo {
-        let id = UUID()
-        let cafFilename = "ansh-voice-\(id.uuidString).caf"
-        let displayName = preferredName ?? sourceURL.deletingPathExtension().lastPathComponent
-
-        let didAccess = sourceURL.startAccessingSecurityScopedResource()
-        defer {
-            if didAccess { sourceURL.stopAccessingSecurityScopedResource() }
-        }
-
-        let cafURL = try customSoundsDirectoryURL().appendingPathComponent(cafFilename)
-        try convertAudioToNotificationCAF(sourceURL: sourceURL, destinationURL: cafURL)
-        installCustomSoundInLibraryIfNeeded(filename: cafFilename)
+    static func registerImportedMemo(
+        id: UUID,
+        displayName: String,
+        notificationSoundFilename: String
+    ) -> AnshSchedulerCustomVoiceMemo {
+        installCustomSoundInLibraryIfNeeded(filename: notificationSoundFilename)
 
         var memos = customVoiceMemos()
         let memo = AnshSchedulerCustomVoiceMemo(
             id: id,
             displayName: displayName,
-            notificationSoundFilename: cafFilename
+            notificationSoundFilename: notificationSoundFilename
         )
         memos.append(memo)
         saveCustomVoiceMemos(memos)
@@ -131,7 +143,13 @@ enum AnshSchedulerVoiceMemoService {
         return sounds
     }
 
-    private static func installCustomSoundInLibraryIfNeeded(filename: String) {
+    static func prepareAllCustomSoundsForNotifications() {
+        for memo in customVoiceMemos() {
+            installCustomSoundInLibraryIfNeeded(filename: memo.notificationSoundFilename)
+        }
+    }
+
+    static func installCustomSoundInLibraryIfNeeded(filename: String) {
         guard let source = try? customSoundsDirectoryURL().appendingPathComponent(filename),
               FileManager.default.fileExists(atPath: source.path) else { return }
         guard let destination = try? librarySoundsDirectoryURL().appendingPathComponent(filename) else { return }
@@ -139,28 +157,11 @@ enum AnshSchedulerVoiceMemoService {
         try? FileManager.default.copyItem(at: source, to: destination)
     }
 
-    private static func convertAudioToNotificationCAF(sourceURL: URL, destinationURL: URL) throws {
-        let sourceFile = try AVAudioFile(forReading: sourceURL)
-        let format = AVAudioFormat(
-            commonFormat: .pcmFormatInt16,
-            sampleRate: min(sourceFile.fileFormat.sampleRate, 48_000),
-            channels: 1,
-            interleaved: true
-        )!
-        let maxFrames = AVAudioFramePosition(48_000 * 29)
-        let framesToRead = min(AVAudioFrameCount(sourceFile.length), AVAudioFrameCount(maxFrames))
-
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: framesToRead) else {
-            throw AnshSchedulerVoiceMemoError.conversionFailed
-        }
-
-        try sourceFile.read(into: buffer, frameCount: framesToRead)
-
-        if FileManager.default.fileExists(atPath: destinationURL.path) {
-            try FileManager.default.removeItem(at: destinationURL)
-        }
-        let output = try AVAudioFile(forWriting: destinationURL, settings: format.settings)
-        try output.write(from: buffer)
+    nonisolated static func convertAudioToNotificationCAF(sourceURL: URL, destinationURL: URL) throws {
+        try AnshSchedulerVoiceMemoAudioConverter.convertToNotificationCAF(
+            sourceURL: sourceURL,
+            destinationURL: destinationURL
+        )
     }
 }
 

@@ -7,4 +7,8 @@ final class AnshSchedulerNavigationState: ObservableObject {
     func showHomeAfterTaskSave() {
         selectedTabIndex = 0
     }
+
+    func showSettingsTab() {
+        selectedTabIndex = 1
+    }
 }

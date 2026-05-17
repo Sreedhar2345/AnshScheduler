@@ -13,4 +13,5 @@ final class AnshSchedulerNotificationDelegate: NSObject, UNUserNotificationCente
 enum AnshSchedulerNotificationUserInfoKey {
     static let taskID = "ansh.taskID"
     static let voiceMemoID = "ansh.voiceMemoID"
+    static let notes = "ansh.notes"
 }

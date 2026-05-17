@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AnshSchedulerRootView: View {
     @EnvironmentObject private var navigationState: AnshSchedulerNavigationState
+    @EnvironmentObject private var voiceMemoStore: AnshSchedulerVoiceMemoStore
 
     var body: some View {
         TabView(selection: $navigationState.selectedTabIndex) {
@@ -22,5 +23,24 @@ struct AnshSchedulerRootView: View {
             .tag(1)
         }
         .anshSchedulerThemed()
+        .alert(
+            "Voice Memo Uploaded",
+            isPresented: Binding(
+                get: { voiceMemoStore.importSuccessConfirmation != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        voiceMemoStore.clearImportSuccessConfirmation()
+                    }
+                }
+            )
+        ) {
+            Button("OK", role: .cancel) {
+                voiceMemoStore.clearImportSuccessConfirmation()
+            }
+        } message: {
+            if let confirmation = voiceMemoStore.importSuccessConfirmation {
+                Text(confirmation.message)
+            }
+        }
     }
 }

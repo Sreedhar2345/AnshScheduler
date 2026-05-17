@@ -3,6 +3,7 @@ import SwiftUI
 struct AnshSchedulerHomeView: View {
     @EnvironmentObject private var schedulerStore: AnshSchedulerStore
     @EnvironmentObject private var navigationState: AnshSchedulerNavigationState
+    @EnvironmentObject private var voiceMemoStore: AnshSchedulerVoiceMemoStore
     @Environment(\.anshSchedulerTheme) private var theme
     @State private var isPresentingNewTaskEditor = false
 
@@ -22,6 +23,7 @@ struct AnshSchedulerHomeView: View {
                 schedulerStore.addScheduledTask(draft)
                 navigationState.showHomeAfterTaskSave()
             }
+            .environmentObject(voiceMemoStore)
         }
     }
 
@@ -35,7 +37,7 @@ struct AnshSchedulerHomeView: View {
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(theme.primaryText)
 
-            Text("Add a task with an image, schedule, and reminder frequency.")
+            Text("Add a task with notes, image, voice memo, and schedule.")
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(theme.secondaryText)

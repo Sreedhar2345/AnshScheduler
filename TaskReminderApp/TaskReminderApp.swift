@@ -5,6 +5,7 @@ import UserNotifications
 struct AnshSchedulerApp: App {
     @StateObject private var schedulerStore = AnshSchedulerStore()
     @StateObject private var navigationState = AnshSchedulerNavigationState()
+    @StateObject private var voiceMemoStore = AnshSchedulerVoiceMemoStore()
 
     private let notificationDelegate = AnshSchedulerNotificationDelegate()
 
@@ -17,6 +18,7 @@ struct AnshSchedulerApp: App {
             AnshSchedulerRootView()
                 .environmentObject(schedulerStore)
                 .environmentObject(navigationState)
+                .environmentObject(voiceMemoStore)
         }
     }
 }

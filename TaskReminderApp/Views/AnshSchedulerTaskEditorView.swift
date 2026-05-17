@@ -3,12 +3,14 @@ import SwiftUI
 
 struct AnshSchedulerTaskEditorView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var voiceMemoStore: AnshSchedulerVoiceMemoStore
     @Environment(\.anshSchedulerTheme) private var theme
 
     let editingTask: AnshScheduledTask?
     let onSave: (AnshScheduledTaskDraft) -> Void
 
     @State private var taskNameInput: String
+    @State private var notesInput: String
     @State private var reminderTimeInput: Date
     @State private var taskImageData: Data?
     @State private var previewImage: UIImage?
@@ -31,6 +33,7 @@ struct AnshSchedulerTaskEditorView: View {
 
         let initialTime = editingTask?.reminderTime ?? Date()
         _taskNameInput = State(initialValue: editingTask?.name ?? "")
+        _notesInput = State(initialValue: editingTask?.notes ?? "")
         _reminderTimeInput = State(initialValue: initialTime)
         _taskImageData = State(initialValue: editingTask?.imageData)
         _frequency = State(initialValue: editingTask?.frequency ?? .daily)
@@ -74,52 +77,20 @@ struct AnshSchedulerTaskEditorView: View {
                 theme.screenBackground.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 20) {
+                    LazyVStack(alignment: .leading, spacing: 20) {
                         labeledField(title: "Task Name") {
                             TextField("Enter task name", text: $taskNameInput)
                                 .textFieldStyle(.roundedBorder)
                         }
 
+                        labeledField(title: "Notes") {
+                            TextField("Add notes (optional)", text: $notesInput, axis: .vertical)
+                                .lineLimit(3 ... 6)
+                                .textFieldStyle(.roundedBorder)
+                        }
+
                         labeledField(title: "Task Image") {
-                            VStack(alignment: .leading, spacing: 12) {
-                                AnshSchedulerPresetImagePicker(
-                                    selectedPreset: $selectedPreset,
-                                    onSelectPreset: { preset in
-                                        selectedPhotoItem = nil
-                                        taskImageData = preset.pngData()
-                                    }
-                                )
-
-                                PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                                    HStack {
-                                        Label("Upload from Photos", systemImage: "photo.on.rectangle")
-                                        if isPhotoLoading {
-                                            Spacer()
-                                            ProgressView()
-                                        }
-                                    }
-                                    .foregroundStyle(theme.primaryText)
-                                }
-                                .disabled(isPhotoLoading)
-
-                                if let previewImage {
-                                    Image(uiImage: previewImage)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(maxHeight: 140)
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                }
-
-                                if taskImageData != nil {
-                                    Button("Remove image", role: .destructive) {
-                                        taskImageData = nil
-                                        previewImage = nil
-                                        selectedPhotoItem = nil
-                                        selectedPreset = nil
-                                    }
-                                    .font(.subheadline)
-                                }
-                            }
+                            taskImageSection
                         }
 
                         labeledField(title: "Voice Memo") {
@@ -151,21 +122,17 @@ struct AnshSchedulerTaskEditorView: View {
                                     selection: $reminderTimeInput,
                                     displayedComponents: .hourAndMinute
                                 )
-                                .datePickerStyle(.wheel)
+                                .datePickerStyle(.compact)
                                 .labelsHidden()
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 4)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
                                 .background(
                                     RoundedRectangle(cornerRadius: 12)
                                         .fill(theme.listRowTint)
                                 )
                             }
                         }
-
-                        AnshSchedulerPrimaryButton(title: isSaving ? "Saving…" : "SAVE", isEnabled: canSave) {
-                            Task { await saveTask() }
-                        }
-                        .padding(.top, 8)
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
@@ -178,12 +145,70 @@ struct AnshSchedulerTaskEditorView: View {
                     Button("Cancel") { dismiss() }
                         .foregroundStyle(theme.primaryText)
                 }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        Task { await saveTask() }
+                    }
+                    .fontWeight(.semibold)
+                    .disabled(!canSave)
+                }
             }
-            .task(id: taskImageData) {
+            .task(id: previewCacheKey) {
                 await refreshPreviewImage()
             }
-            .task(id: selectedPhotoItem?.itemIdentifier) {
-                await loadSelectedPhotoIfNeeded()
+            .onChange(of: selectedPhotoItem?.itemIdentifier) { _ in
+                Task { await loadSelectedPhotoIfNeeded() }
+            }
+            .onAppear {
+                voiceMemoStore.reload()
+            }
+        }
+    }
+
+    private var previewCacheKey: String {
+        guard let taskImageData else { return "none" }
+        return "\(taskImageData.count)-\(taskImageData.hashValue)"
+    }
+
+    @ViewBuilder
+    private var taskImageSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            AnshSchedulerPresetImagePicker(
+                selectedPreset: $selectedPreset,
+                onSelectPreset: { preset in
+                    selectedPhotoItem = nil
+                    taskImageData = preset.pngData()
+                }
+            )
+
+            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
+                HStack {
+                    Label("Upload from Photos", systemImage: "photo.on.rectangle")
+                    if isPhotoLoading {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+                .foregroundStyle(theme.primaryText)
+            }
+            .disabled(isPhotoLoading)
+
+            if let previewImage {
+                Image(uiImage: previewImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 120)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+
+            if taskImageData != nil {
+                Button("Remove image", role: .destructive) {
+                    taskImageData = nil
+                    previewImage = nil
+                    selectedPhotoItem = nil
+                    selectedPreset = nil
+                }
+                .font(.subheadline)
             }
         }
     }
@@ -208,7 +233,7 @@ struct AnshSchedulerTaskEditorView: View {
         }
 
         selectedPreset = nil
-        taskImageData = AnshSchedulerImageDecoding.storageData(from: rawData) ?? rawData
+        taskImageData = await AnshSchedulerImageDecoding.storageData(from: rawData) ?? rawData
     }
 
     @ViewBuilder
@@ -223,9 +248,10 @@ struct AnshSchedulerTaskEditorView: View {
                         Text(option.label).tag(option.weekday)
                     }
                 }
-                .pickerStyle(.wheel)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
+                .pickerStyle(.menu)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(theme.listRowTint)
@@ -238,9 +264,10 @@ struct AnshSchedulerTaskEditorView: View {
                         Text("\(day)").tag(day)
                     }
                 }
-                .pickerStyle(.wheel)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 4)
+                .pickerStyle(.menu)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(theme.listRowTint)
@@ -253,8 +280,10 @@ struct AnshSchedulerTaskEditorView: View {
                     selection: $calendarAnchorDate,
                     displayedComponents: .date
                 )
-                .datePickerStyle(.graphical)
+                .datePickerStyle(.compact)
                 .labelsHidden()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(theme.listRowTint)
@@ -278,8 +307,10 @@ struct AnshSchedulerTaskEditorView: View {
                         )
                     }
                 }
-                .datePickerStyle(.graphical)
+                .datePickerStyle(.compact)
                 .labelsHidden()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
                         .fill(theme.listRowTint)
@@ -319,6 +350,7 @@ struct AnshSchedulerTaskEditorView: View {
         return AnshScheduledTaskDraft(
             name: trimmedTaskName,
             reminderTime: resolvedReminderTime,
+            notes: notesInput,
             imageData: taskImageData,
             frequency: frequency,
             weeklyWeekday: resolvedWeekday,
@@ -341,7 +373,9 @@ struct AnshSchedulerTaskEditorView: View {
             previewImage = nil
             return
         }
-        previewImage = await AnshSchedulerImageDecoding.uiImage(from: taskImageData)
+        previewImage = await AnshSchedulerImageCache.shared.image(forKey: previewCacheKey) {
+            await AnshSchedulerImageDecoding.uiImage(from: taskImageData, maxPixel: 512)
+        }
     }
 
     private func labeledField<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {

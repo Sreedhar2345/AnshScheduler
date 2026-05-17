@@ -93,3 +93,12 @@ enum AnshSchedulerVoiceMemoCatalog {
         AnshSchedulerBundledVoiceMemo.allCases
     }
 }
+
+struct AnshSchedulerVoiceMemoImportConfirmation: Identifiable, Equatable {
+    let id = UUID()
+    let memoName: String
+
+    var message: String {
+        "\"\(memoName)\" was uploaded successfully and is ready to use when you create or edit a task."
+    }
+}

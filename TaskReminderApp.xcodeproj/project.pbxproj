@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,6 +16,7 @@
 		328FD12483E0E2A17F8859D8 /* AnshSchedulerTaskAvatar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 173D9574F79AF03FE22BB1D0 /* AnshSchedulerTaskAvatar.swift */; };
 		32FF0246F0F2272F5283746F /* AnshScheduledTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8007A76CFAE3045997219D44 /* AnshScheduledTask.swift */; };
 		34E22AC99E29DBB761C8FE8E /* AnshSchedulerTaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39979F2F00439E14942CB8BD /* AnshSchedulerTaskEditorView.swift */; };
+		3B96603163DB560B763F8622 /* AnshSchedulerVoiceMemoAudioConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D78557A5E0E051DDF7036036 /* AnshSchedulerVoiceMemoAudioConverter.swift */; };
 		3F42D7B99973DD0321029DEB /* AnshSchedulerVoiceMemoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0A508BF54993911AC79FD0C /* AnshSchedulerVoiceMemoService.swift */; };
 		5423E1CE1ED96FDF3A767D30 /* AnshSchedulerPresetImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB5230A35C0AEF55D89C7632 /* AnshSchedulerPresetImagePicker.swift */; };
 		56E22D4891D832626D6BA539 /* AnshSchedulerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4207B17081D6AF4F227E9E5D /* AnshSchedulerSettingsView.swift */; };
@@ -30,12 +31,16 @@
 		8E073EE8A16B5A9CAE083363 /* WakeUp.caf in Resources */ = {isa = PBXBuildFile; fileRef = 643B120E8A48AA005C8EBF98 /* WakeUp.caf */; };
 		96365B74DD12A40120A16063 /* AnshSchedulerTaskRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2108A322928061B570675B94 /* AnshSchedulerTaskRow.swift */; };
 		A645C9ADF7FEC745C5B2190E /* AnshSchedulerNavigationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359E4870D178B171277303B9 /* AnshSchedulerNavigationState.swift */; };
+		AF23F78B35D80EA57B855B6D /* AnshSchedulerVoiceMemoStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2555693FD5AB591979885DDB /* AnshSchedulerVoiceMemoStore.swift */; };
 		D20175CED2C5D245194C523D /* AnshSchedulerNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6699657E7BB2BC394A6AE6CF /* AnshSchedulerNotificationService.swift */; };
 		D3B773B359324F8D9D7EC989 /* AnshSchedulerTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EF12A942237968AEB269AF4 /* AnshSchedulerTheme.swift */; };
+		D7AED8AF49785001CC77932F /* AppLogo.png in Resources */ = {isa = PBXBuildFile; fileRef = 7B28E75D43CE1DB91C4F4F46 /* AppLogo.png */; };
 		E0E1E2D2E475AD5B06B65268 /* AnshSchedulerFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 120E64D725736C966A65888C /* AnshSchedulerFormatting.swift */; };
+		E338ED255F2757AAF24ED798 /* AnshSchedulerSettingsVoiceMemosSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 603AE42ED0A5FCE9C0C0F645 /* AnshSchedulerSettingsVoiceMemosSection.swift */; };
 		EF9B42D0117894B216DE7128 /* TaskReminderAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A63F2B5F7E9870DBB8F7C55F /* TaskReminderAppTests.swift */; };
 		F14EDDFEABB485686819C1DE /* AnshSchedulerVoiceMemoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F35AFD0EACF669EB03A0B886 /* AnshSchedulerVoiceMemoPicker.swift */; };
 		F2E6B5A2786BF10E92BA6339 /* AnshSchedulerConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7592064E3171EEAC16FC8B2 /* AnshSchedulerConstants.swift */; };
+		F9358D0188EDC7BBF18DED7B /* AnshSchedulerImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5196107458124192AF760820 /* AnshSchedulerImageCache.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,21 +65,25 @@
 		120E64D725736C966A65888C /* AnshSchedulerFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerFormatting.swift; sourceTree = "<group>"; };
 		173D9574F79AF03FE22BB1D0 /* AnshSchedulerTaskAvatar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerTaskAvatar.swift; sourceTree = "<group>"; };
 		2108A322928061B570675B94 /* AnshSchedulerTaskRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerTaskRow.swift; sourceTree = "<group>"; };
+		2555693FD5AB591979885DDB /* AnshSchedulerVoiceMemoStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerVoiceMemoStore.swift; sourceTree = "<group>"; };
 		2ADB1E350C25382D6666B8BE /* AnshReminderFrequency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshReminderFrequency.swift; sourceTree = "<group>"; };
 		2F002F329434BF505F3B65D9 /* AnshSchedulerHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerHomeView.swift; sourceTree = "<group>"; };
 		359E4870D178B171277303B9 /* AnshSchedulerNavigationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerNavigationState.swift; sourceTree = "<group>"; };
 		39979F2F00439E14942CB8BD /* AnshSchedulerTaskEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerTaskEditorView.swift; sourceTree = "<group>"; };
 		4207B17081D6AF4F227E9E5D /* AnshSchedulerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerSettingsView.swift; sourceTree = "<group>"; };
 		4CAD54AD981FFE5E409B6DFE /* AnshSchedulerBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerBackground.swift; sourceTree = "<group>"; };
+		5196107458124192AF760820 /* AnshSchedulerImageCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerImageCache.swift; sourceTree = "<group>"; };
 		58D9A0F8DD4FEEC782C4B1C2 /* AnshSchedulerPresetTaskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerPresetTaskImage.swift; sourceTree = "<group>"; };
-		643B120E8A48AA005C8EBF98 /* WakeUp.caf */ = {isa = PBXFileReference; path = WakeUp.caf; sourceTree = "<group>"; };
+		603AE42ED0A5FCE9C0C0F645 /* AnshSchedulerSettingsVoiceMemosSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerSettingsVoiceMemosSection.swift; sourceTree = "<group>"; };
+		643B120E8A48AA005C8EBF98 /* WakeUp.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = WakeUp.caf; sourceTree = "<group>"; };
 		6699657E7BB2BC394A6AE6CF /* AnshSchedulerNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerNotificationService.swift; sourceTree = "<group>"; };
 		6727FABBE5C5F8EA603B8A93 /* TaskReminderAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskReminderAppUITests.swift; sourceTree = "<group>"; };
+		7B28E75D43CE1DB91C4F4F46 /* AppLogo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppLogo.png; sourceTree = "<group>"; };
 		7D7EF07E26A0A6B3D50FC1AD /* AnshSchedulerPrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerPrimaryButton.swift; sourceTree = "<group>"; };
 		8007A76CFAE3045997219D44 /* AnshScheduledTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshScheduledTask.swift; sourceTree = "<group>"; };
 		8D7BBB0F0FA80AA7BD2A1779 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		954F94CFB09D54E843AB9CD8 /* AnshSchedulerImageDecoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerImageDecoding.swift; sourceTree = "<group>"; };
-		9B78E0CC4D636D006771CC31 /* TaskReminderAppUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TaskReminderAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B78E0CC4D636D006771CC31 /* TaskReminderAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TaskReminderAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF12A942237968AEB269AF4 /* AnshSchedulerTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerTheme.swift; sourceTree = "<group>"; };
 		A63F2B5F7E9870DBB8F7C55F /* TaskReminderAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskReminderAppTests.swift; sourceTree = "<group>"; };
 		A816AA706368738F3C35DAA2 /* AnshSchedulerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerStore.swift; sourceTree = "<group>"; };
@@ -83,9 +92,10 @@
 		B99C2A35CF2C0C7DAE583CBA /* AnshSchedulerVoiceMemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerVoiceMemo.swift; sourceTree = "<group>"; };
 		C0A508BF54993911AC79FD0C /* AnshSchedulerVoiceMemoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerVoiceMemoService.swift; sourceTree = "<group>"; };
 		C20621509AE8407CC0105121 /* TaskReminderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskReminderApp.swift; sourceTree = "<group>"; };
+		D78557A5E0E051DDF7036036 /* AnshSchedulerVoiceMemoAudioConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerVoiceMemoAudioConverter.swift; sourceTree = "<group>"; };
 		DB5230A35C0AEF55D89C7632 /* AnshSchedulerPresetImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerPresetImagePicker.swift; sourceTree = "<group>"; };
-		DBBA1938CAF7464B18E2FB8E /* TaskReminderApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TaskReminderApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		E66428EB211E83A6B2285315 /* TaskReminderAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TaskReminderAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBBA1938CAF7464B18E2FB8E /* TaskReminderApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskReminderApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E66428EB211E83A6B2285315 /* TaskReminderAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TaskReminderAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F35AFD0EACF669EB03A0B886 /* AnshSchedulerVoiceMemoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnshSchedulerVoiceMemoPicker.swift; sourceTree = "<group>"; };
 		F5F2219175958304EB1C6A7E /* Wake up.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Wake up.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,6 +107,7 @@
 				4CAD54AD981FFE5E409B6DFE /* AnshSchedulerBackground.swift */,
 				DB5230A35C0AEF55D89C7632 /* AnshSchedulerPresetImagePicker.swift */,
 				7D7EF07E26A0A6B3D50FC1AD /* AnshSchedulerPrimaryButton.swift */,
+				603AE42ED0A5FCE9C0C0F645 /* AnshSchedulerSettingsVoiceMemosSection.swift */,
 				173D9574F79AF03FE22BB1D0 /* AnshSchedulerTaskAvatar.swift */,
 				2108A322928061B570675B94 /* AnshSchedulerTaskRow.swift */,
 				F35AFD0EACF669EB03A0B886 /* AnshSchedulerVoiceMemoPicker.swift */,
@@ -122,6 +133,7 @@
 			children = (
 				359E4870D178B171277303B9 /* AnshSchedulerNavigationState.swift */,
 				A816AA706368738F3C35DAA2 /* AnshSchedulerStore.swift */,
+				2555693FD5AB591979885DDB /* AnshSchedulerVoiceMemoStore.swift */,
 			);
 			path = Stores;
 			sourceTree = "<group>";
@@ -138,6 +150,7 @@
 			isa = PBXGroup;
 			children = (
 				120E64D725736C966A65888C /* AnshSchedulerFormatting.swift */,
+				5196107458124192AF760820 /* AnshSchedulerImageCache.swift */,
 				954F94CFB09D54E843AB9CD8 /* AnshSchedulerImageDecoding.swift */,
 			);
 			path = Utilities;
@@ -146,6 +159,7 @@
 		63D7434A9E403235A78616CB /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				7B28E75D43CE1DB91C4F4F46 /* AppLogo.png */,
 				643B120E8A48AA005C8EBF98 /* WakeUp.caf */,
 				3763A96E65932C233E7926EE /* VoiceMemos */,
 			);
@@ -212,6 +226,7 @@
 			children = (
 				06B422B66AA9AC38885B6728 /* AnshSchedulerNotificationDelegate.swift */,
 				6699657E7BB2BC394A6AE6CF /* AnshSchedulerNotificationService.swift */,
+				D78557A5E0E051DDF7036036 /* AnshSchedulerVoiceMemoAudioConverter.swift */,
 				C0A508BF54993911AC79FD0C /* AnshSchedulerVoiceMemoService.swift */,
 			);
 			path = Services;
@@ -289,7 +304,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					3FC73FAC2C2E98CE49C72EDA = {
 						ProvisioningStyle = Automatic;
@@ -309,7 +324,6 @@
 			);
 			mainGroup = 6E822C8891635BD1FA3E40C9;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -325,6 +339,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D7AED8AF49785001CC77932F /* AppLogo.png in Resources */,
 				7EBA7637705098C9F1830786 /* Assets.xcassets in Resources */,
 				712D987E03C63E468589C3D9 /* Wake up.mp3 in Resources */,
 				8E073EE8A16B5A9CAE083363 /* WakeUp.caf in Resources */,
@@ -352,6 +367,7 @@
 				F2E6B5A2786BF10E92BA6339 /* AnshSchedulerConstants.swift in Sources */,
 				E0E1E2D2E475AD5B06B65268 /* AnshSchedulerFormatting.swift in Sources */,
 				68FAF9BBAE760027E41AE796 /* AnshSchedulerHomeView.swift in Sources */,
+				F9358D0188EDC7BBF18DED7B /* AnshSchedulerImageCache.swift in Sources */,
 				0FDFFFDB01AA4A9820EF62C5 /* AnshSchedulerImageDecoding.swift in Sources */,
 				A645C9ADF7FEC745C5B2190E /* AnshSchedulerNavigationState.swift in Sources */,
 				7C9D432EE38A28EA2F85E7F2 /* AnshSchedulerNotificationDelegate.swift in Sources */,
@@ -361,14 +377,17 @@
 				150B3AFB6A60CC1A66CD0399 /* AnshSchedulerPrimaryButton.swift in Sources */,
 				62F38D2D8587C397D1BA4279 /* AnshSchedulerRootView.swift in Sources */,
 				56E22D4891D832626D6BA539 /* AnshSchedulerSettingsView.swift in Sources */,
+				E338ED255F2757AAF24ED798 /* AnshSchedulerSettingsVoiceMemosSection.swift in Sources */,
 				217F527FC4CBBF5EB7F8FED9 /* AnshSchedulerStore.swift in Sources */,
 				328FD12483E0E2A17F8859D8 /* AnshSchedulerTaskAvatar.swift in Sources */,
 				34E22AC99E29DBB761C8FE8E /* AnshSchedulerTaskEditorView.swift in Sources */,
 				96365B74DD12A40120A16063 /* AnshSchedulerTaskRow.swift in Sources */,
 				D3B773B359324F8D9D7EC989 /* AnshSchedulerTheme.swift in Sources */,
 				7ABD8CB471D4260DF0EC9F32 /* AnshSchedulerVoiceMemo.swift in Sources */,
+				3B96603163DB560B763F8622 /* AnshSchedulerVoiceMemoAudioConverter.swift in Sources */,
 				F14EDDFEABB485686819C1DE /* AnshSchedulerVoiceMemoPicker.swift in Sources */,
 				3F42D7B99973DD0321029DEB /* AnshSchedulerVoiceMemoService.swift in Sources */,
+				AF23F78B35D80EA57B855B6D /* AnshSchedulerVoiceMemoStore.swift in Sources */,
 				03DCA2DB99AA73C703B34326 /* TaskReminderApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -401,6 +420,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -435,6 +455,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -450,6 +471,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.saiansh.TaskReminderApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -512,6 +534,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 62R83ZLYP2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TaskReminderApp/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow photo access to attach an image to each scheduled task.";
@@ -531,6 +554,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 62R83ZLYP2;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = TaskReminderApp/Info.plist;
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Allow photo access to attach an image to each scheduled task.";
@@ -564,6 +588,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -598,6 +623,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -620,6 +646,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.saiansh.TaskReminderApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";

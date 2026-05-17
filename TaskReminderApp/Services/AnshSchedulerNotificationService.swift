@@ -70,12 +70,17 @@ actor AnshSchedulerNotificationService {
             }
 
             let content = UNMutableNotificationContent()
-            content.title = AnshSchedulerConstants.appDisplayName
-            content.body = task.name
+            content.title = task.name
+            if let notes = task.trimmedNotes {
+                content.body = notes
+            } else {
+                content.body = AnshSchedulerFormatting.taskSummary(for: task)
+            }
             content.sound = AnshSchedulerVoiceMemoService.notificationSound(for: task.voiceMemoSelection)
             content.userInfo = [
                 AnshSchedulerNotificationUserInfoKey.taskID: task.id.uuidString,
                 AnshSchedulerNotificationUserInfoKey.voiceMemoID: task.voiceMemoStorageID ?? "",
+                AnshSchedulerNotificationUserInfoKey.notes: task.trimmedNotes ?? "",
             ]
 
             let trigger = UNCalendarNotificationTrigger(dateMatching: desiredComponents, repeats: repeats)
@@ -91,17 +96,22 @@ actor AnshSchedulerNotificationService {
         repeats: Bool,
         soundFilename: String?
     ) -> Bool {
-        guard request.content.title == AnshSchedulerConstants.appDisplayName,
-              request.content.body == task.name,
+        guard request.content.title == task.name,
               let trigger = request.trigger as? UNCalendarNotificationTrigger else {
             return false
         }
 
         guard trigger.repeats == repeats else { return false }
 
+        let desiredBody = task.trimmedNotes ?? AnshSchedulerFormatting.taskSummary(for: task)
+        guard request.content.body == desiredBody else { return false }
+
         let existingSound = request.content.userInfo[AnshSchedulerNotificationUserInfoKey.voiceMemoID] as? String ?? ""
         let desiredSound = task.voiceMemoStorageID ?? ""
         guard existingSound == desiredSound else { return false }
+
+        let existingNotes = request.content.userInfo[AnshSchedulerNotificationUserInfoKey.notes] as? String ?? ""
+        guard existingNotes == (task.trimmedNotes ?? "") else { return false }
 
         return componentsMatch(trigger.dateComponents, components, frequency: task.frequency)
     }

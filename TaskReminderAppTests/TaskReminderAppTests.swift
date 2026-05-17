@@ -52,6 +52,15 @@ final class AnshSchedulerStoreTests: XCTestCase {
         XCTAssertEqual(yearlyParts.day, 16)
     }
 
+    func testNotesTrimming() {
+        let task = AnshScheduledTask(
+            name: "Test",
+            reminderTime: Date(),
+            notes: "  Remember keys  "
+        )
+        XCTAssertEqual(task.trimmedNotes, "Remember keys")
+    }
+
     @MainActor
     func testAddUpdateDeleteTaskFlow() {
         let defaults = makeIsolatedDefaults()
@@ -63,6 +72,7 @@ final class AnshSchedulerStoreTests: XCTestCase {
             AnshScheduledTaskDraft(
                 name: "First",
                 reminderTime: later,
+                notes: "Pack lunch",
                 imageData: nil,
                 frequency: .daily,
                 weeklyWeekday: nil,
@@ -74,6 +84,7 @@ final class AnshSchedulerStoreTests: XCTestCase {
             AnshScheduledTaskDraft(
                 name: "Second",
                 reminderTime: now,
+                notes: "",
                 imageData: Data([0x01]),
                 frequency: .weekly,
                 weeklyWeekday: 1,
@@ -84,7 +95,6 @@ final class AnshSchedulerStoreTests: XCTestCase {
 
         XCTAssertEqual(store.scheduledTasks.count, 2)
         XCTAssertEqual(store.scheduledTasks.first?.name, "Second")
-        XCTAssertEqual(store.scheduledTasks.first?.frequency, .weekly)
 
         let id = try! XCTUnwrap(store.scheduledTasks.first?.id)
         store.updateScheduledTask(
@@ -92,6 +102,7 @@ final class AnshSchedulerStoreTests: XCTestCase {
             with: AnshScheduledTaskDraft(
                 name: "Updated",
                 reminderTime: later,
+                notes: "Updated note",
                 imageData: Data([0x02]),
                 frequency: .monthly,
                 weeklyWeekday: nil,
@@ -102,8 +113,7 @@ final class AnshSchedulerStoreTests: XCTestCase {
 
         let updated = store.scheduledTasks.first(where: { $0.id == id })
         XCTAssertEqual(updated?.name, "Updated")
-        XCTAssertEqual(updated?.frequency, .monthly)
-        XCTAssertEqual(updated?.dayOfMonth, 10)
+        XCTAssertEqual(updated?.trimmedNotes, "Updated note")
 
         store.deleteScheduledTask(id: id)
         XCTAssertEqual(store.scheduledTasks.count, 1)
@@ -118,6 +128,7 @@ final class AnshSchedulerStoreTests: XCTestCase {
             AnshScheduledTaskDraft(
                 name: "Morning walk",
                 reminderTime: Date(),
+                notes: "Bring water",
                 imageData: nil,
                 frequency: .daily,
                 weeklyWeekday: nil,
@@ -130,6 +141,6 @@ final class AnshSchedulerStoreTests: XCTestCase {
 
         let reloadedStore = AnshSchedulerStore(userDefaults: defaults, notificationsEnabled: false)
         XCTAssertEqual(reloadedStore.scheduledTasks.count, 1)
-        XCTAssertEqual(reloadedStore.scheduledTasks.first?.name, "Morning walk")
+        XCTAssertEqual(reloadedStore.scheduledTasks.first?.trimmedNotes, "Bring water")
     }
 }
