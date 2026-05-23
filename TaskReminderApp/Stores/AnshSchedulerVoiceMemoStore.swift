@@ -27,13 +27,6 @@ final class AnshSchedulerVoiceMemoStore: ObservableObject {
         let memoID = UUID()
         let cafFilename = "ansh-voice-\(memoID.uuidString).caf"
 
-        let didAccess = url.startAccessingSecurityScopedResource()
-        defer {
-            if didAccess {
-                url.stopAccessingSecurityScopedResource()
-            }
-        }
-
         let stagingURL: URL
         do {
             stagingURL = try Self.copyToStagingURL(from: url)
@@ -42,32 +35,14 @@ final class AnshSchedulerVoiceMemoStore: ObservableObject {
             return false
         }
 
-        let cafURL: URL
         do {
-            cafURL = try AnshSchedulerVoiceMemoService.cafDestinationURL(filename: cafFilename)
-        } catch {
+            let cafURL = try AnshSchedulerVoiceMemoService.cafDestinationURL(filename: cafFilename)
+            try AnshSchedulerVoiceMemoAudioConverter.convertToNotificationCAF(
+                sourceURL: stagingURL,
+                destinationURL: cafURL
+            )
             try? FileManager.default.removeItem(at: stagingURL)
-            lastImportError = error.localizedDescription
-            return false
-        }
 
-        let conversionResult: Result<Void, Error> = await Task.detached(priority: .userInitiated) {
-            Result {
-                try AnshSchedulerVoiceMemoAudioConverter.convertToNotificationCAF(
-                    sourceURL: stagingURL,
-                    destinationURL: cafURL
-                )
-            }
-        }.value
-
-        try? FileManager.default.removeItem(at: stagingURL)
-
-        switch conversionResult {
-        case .failure(let error):
-            try? FileManager.default.removeItem(at: cafURL)
-            lastImportError = error.localizedDescription
-            return false
-        case .success:
             AnshSchedulerVoiceMemoService.registerImportedMemo(
                 id: memoID,
                 displayName: displayName,
@@ -76,6 +51,10 @@ final class AnshSchedulerVoiceMemoStore: ObservableObject {
             reload()
             importSuccessConfirmation = AnshSchedulerVoiceMemoImportConfirmation(memoName: displayName)
             return true
+        } catch {
+            try? FileManager.default.removeItem(at: stagingURL)
+            lastImportError = error.localizedDescription
+            return false
         }
     }
 

@@ -1,5 +1,4 @@
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct AnshSchedulerSettingsView: View {
     @EnvironmentObject private var schedulerStore: AnshSchedulerStore
@@ -8,9 +7,7 @@ struct AnshSchedulerSettingsView: View {
     @Environment(\.anshSchedulerTheme) private var theme
 
     @State private var activeSheet: SettingsSheet?
-    @State private var isPickingVoiceMemoFile = false
-
-    private static let voiceMemoUploadTypes: [UTType] = [.mpeg4Audio, .mp3, .wav, .aiff, .audio]
+    @State private var isPresentingVoiceMemoRecorder = false
 
     var body: some View {
         ZStack {
@@ -18,8 +15,8 @@ struct AnshSchedulerSettingsView: View {
 
             List {
                 AnshSchedulerSettingsVoiceMemosSection(
-                    isPickingVoiceMemoFile: $isPickingVoiceMemoFile,
-                    isUploadDisabled: activeSheet != nil
+                    isPresentingRecorder: $isPresentingVoiceMemoRecorder,
+                    isActionDisabled: activeSheet != nil
                 )
 
                 Section {
@@ -58,12 +55,9 @@ struct AnshSchedulerSettingsView: View {
             .scrollContentBackground(.hidden)
         }
         .navigationTitle("Settings")
-        .fileImporter(
-            isPresented: $isPickingVoiceMemoFile,
-            allowedContentTypes: Self.voiceMemoUploadTypes,
-            allowsMultipleSelection: false
-        ) { result in
-            handleVoiceMemoUpload(result)
+        .sheet(isPresented: $isPresentingVoiceMemoRecorder) {
+            AnshSchedulerVoiceMemoRecordingSheet()
+                .environmentObject(voiceMemoStore)
         }
         .sheet(item: $activeSheet) { sheet in
             Group {
@@ -82,31 +76,8 @@ struct AnshSchedulerSettingsView: View {
             }
             .environmentObject(voiceMemoStore)
         }
-        .onChange(of: activeSheet?.id) { newValue in
-            if newValue != nil {
-                isPickingVoiceMemoFile = false
-            }
-        }
         .onAppear {
             voiceMemoStore.reload()
-        }
-    }
-
-    private func handleVoiceMemoUpload(_ result: Result<[URL], Error>) {
-        switch result {
-        case .success(let urls):
-            guard let url = urls.first else {
-                voiceMemoStore.lastImportError = "No file was selected."
-                return
-            }
-            Task { @MainActor in
-                await voiceMemoStore.importVoiceMemo(from: url)
-            }
-        case .failure(let error):
-            let nsError = error as NSError
-            if nsError.domain != NSCocoaErrorDomain || nsError.code != NSUserCancelledError {
-                voiceMemoStore.lastImportError = error.localizedDescription
-            }
         }
     }
 

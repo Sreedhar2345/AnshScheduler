@@ -34,7 +34,7 @@ struct AnshSchedulerVoiceMemoPicker: View {
             )
 
             if voiceMemoStore.customMemos.isEmpty {
-                Text("Upload voice memos in Settings to use them here.")
+                Text("Add voice memos in Settings to use them here.")
                     .font(.caption)
                     .foregroundStyle(theme.secondaryText)
             }

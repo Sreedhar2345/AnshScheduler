@@ -1,20 +1,20 @@
 import SwiftUI
 
 struct AnshSchedulerSettingsVoiceMemosSection: View {
-    @Binding var isPickingVoiceMemoFile: Bool
+    @Binding var isPresentingRecorder: Bool
 
     @EnvironmentObject private var voiceMemoStore: AnshSchedulerVoiceMemoStore
     @Environment(\.anshSchedulerTheme) private var theme
 
-    let isUploadDisabled: Bool
+    let isActionDisabled: Bool
 
     var body: some View {
         Section {
             Button {
-                isPickingVoiceMemoFile = true
+                isPresentingRecorder = true
             } label: {
                 HStack {
-                    Label("Upload voice memo", systemImage: "square.and.arrow.up")
+                    Label("Add voice memo", systemImage: "mic.fill")
                         .foregroundStyle(theme.primaryText)
                     Spacer()
                     if voiceMemoStore.isImporting {
@@ -22,7 +22,7 @@ struct AnshSchedulerSettingsVoiceMemosSection: View {
                     }
                 }
             }
-            .disabled(isUploadDisabled || voiceMemoStore.isImporting)
+            .disabled(isActionDisabled || voiceMemoStore.isImporting)
             .listRowBackground(theme.listRowTint)
 
             if !voiceMemoStore.customMemos.isEmpty {
@@ -47,13 +47,13 @@ struct AnshSchedulerSettingsVoiceMemosSection: View {
                 }
             }
         } header: {
-            Text("Custom Voice Memos")
+            Text("My Voice Memos")
                 .foregroundStyle(theme.primaryText)
         } footer: {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Tap Upload voice memo, then choose an audio file from Files (m4a, mp3, wav).")
+                Text("Record a voice memo here, then choose it from the Voice Memo menu when creating or editing a task.")
                 if voiceMemoStore.isImporting {
-                    Text("Importing…")
+                    Text("Saving…")
                         .foregroundStyle(theme.secondaryText)
                 }
                 if let error = voiceMemoStore.lastImportError {

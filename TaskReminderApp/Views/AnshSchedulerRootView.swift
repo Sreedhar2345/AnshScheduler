@@ -24,7 +24,7 @@ struct AnshSchedulerRootView: View {
         }
         .anshSchedulerThemed()
         .alert(
-            "Voice Memo Uploaded",
+            "Voice Memo Saved",
             isPresented: Binding(
                 get: { voiceMemoStore.importSuccessConfirmation != nil },
                 set: { isPresented in
