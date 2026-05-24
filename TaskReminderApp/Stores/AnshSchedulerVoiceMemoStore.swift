@@ -25,7 +25,7 @@ final class AnshSchedulerVoiceMemoStore: ObservableObject {
 
         let displayName = Self.resolvedDisplayName(url: url, preferredName: preferredName)
         let memoID = UUID()
-        let cafFilename = "ansh-voice-\(memoID.uuidString).caf"
+        let cafFilename = "\(AnshSchedulerConstants.voiceMemoCAFFilePrefix)\(memoID.uuidString).caf"
 
         let stagingURL: URL
         do {
@@ -69,7 +69,7 @@ final class AnshSchedulerVoiceMemoStore: ObservableObject {
 
     private static func copyToStagingURL(from sourceURL: URL) throws -> URL {
         let tempDirectory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("VoiceMemoImport", isDirectory: true)
+            .appendingPathComponent(AnshSchedulerConstants.voiceMemoImportTempDirectoryName, isDirectory: true)
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
 
         let fileExtension = sourceURL.pathExtension.isEmpty ? "m4a" : sourceURL.pathExtension

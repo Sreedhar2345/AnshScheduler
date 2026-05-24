@@ -1,4 +1,3 @@
-import AVFoundation
 import SwiftUI
 
 struct AnshSchedulerVoiceMemoPicker: View {
@@ -6,7 +5,6 @@ struct AnshSchedulerVoiceMemoPicker: View {
     @Environment(\.anshSchedulerTheme) private var theme
 
     @Binding var selection: AnshSchedulerVoiceMemoSelection
-    @State private var previewPlayer: AVAudioPlayer?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -54,8 +52,6 @@ struct AnshSchedulerVoiceMemoPicker: View {
     }
 
     private func playPreview() {
-        guard let url = AnshSchedulerVoiceMemoService.previewURL(for: selection) else { return }
-        previewPlayer = try? AVAudioPlayer(contentsOf: url)
-        previewPlayer?.play()
+        AnshSchedulerVoiceMemoPlaybackService.shared.playVoiceMemo(for: selection)
     }
 }

@@ -43,5 +43,7 @@
     <string>Allow photo access to attach an image to each scheduled task.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Allow microphone access to record custom voice memos for task reminders.</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 </dict>
 </plist>

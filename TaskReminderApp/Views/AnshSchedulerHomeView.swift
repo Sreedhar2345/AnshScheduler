@@ -6,6 +6,7 @@ struct AnshSchedulerHomeView: View {
     @EnvironmentObject private var voiceMemoStore: AnshSchedulerVoiceMemoStore
     @Environment(\.anshSchedulerTheme) private var theme
     @State private var isPresentingNewTaskEditor = false
+    @State private var editingTask: AnshScheduledTask?
 
     var body: some View {
         ZStack {
@@ -21,6 +22,13 @@ struct AnshSchedulerHomeView: View {
         .sheet(isPresented: $isPresentingNewTaskEditor) {
             AnshSchedulerTaskEditorView(editingTask: nil) { draft in
                 schedulerStore.addScheduledTask(draft)
+                navigationState.showHomeAfterTaskSave()
+            }
+            .environmentObject(voiceMemoStore)
+        }
+        .sheet(item: $editingTask) { task in
+            AnshSchedulerTaskEditorView(editingTask: task) { draft in
+                schedulerStore.updateScheduledTask(id: task.id, with: draft)
                 navigationState.showHomeAfterTaskSave()
             }
             .environmentObject(voiceMemoStore)
@@ -56,8 +64,33 @@ struct AnshSchedulerHomeView: View {
             ForEach(schedulerStore.scheduledTasks) { task in
                 AnshSchedulerTaskRow(task: task)
                     .id("\(task.id.uuidString)-\(task.imageData?.count ?? 0)")
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        Button {
+                            editingTask = task
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                        .tint(theme.accentButtonBackground)
+                    }
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button(role: .destructive) {
+                            deleteTask(task)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
             }
         }
         .scrollContentBackground(.hidden)
+    }
+
+    private func deleteTask(_ task: AnshScheduledTask) {
+        if editingTask?.id == task.id {
+            editingTask = nil
+        }
+        schedulerStore.deleteScheduledTask(id: task.id)
+        Task {
+            await AnshSchedulerImageCache.shared.clear()
+        }
     }
 }

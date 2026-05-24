@@ -19,6 +19,18 @@ struct AnshSchedulerApp: App {
                 .environmentObject(schedulerStore)
                 .environmentObject(navigationState)
                 .environmentObject(voiceMemoStore)
+                .task {
+                    await AnshSchedulerAppBootstrap.prepareForLaunch(store: schedulerStore)
+                }
         }
+    }
+}
+
+enum AnshSchedulerAppBootstrap {
+    @MainActor
+    static func prepareForLaunch(store: AnshSchedulerStore) async {
+        AnshSchedulerVoiceMemoService.prepareAllCustomSoundsForNotifications()
+        _ = await AnshSchedulerNotificationService.shared.requestAuthorizationIfNeeded()
+        store.startReminderScheduling()
     }
 }

@@ -98,13 +98,13 @@ enum AnshSchedulerVoiceMemoAudioConverter {
             throw AnshSchedulerVoiceMemoError.conversionFailed
         }
 
-        var didProvideInput = false
+        let inputState = ConverterInputState()
         let inputBlock: AVAudioConverterInputBlock = { _, outStatus in
-            if didProvideInput {
+            if inputState.didProvideInput {
                 outStatus.pointee = .noDataNow
                 return nil
             }
-            didProvideInput = true
+            inputState.didProvideInput = true
             outStatus.pointee = .haveData
             return inputBuffer
         }
@@ -126,4 +126,9 @@ enum AnshSchedulerVoiceMemoAudioConverter {
 
         try outputFile.write(from: outputBuffer)
     }
+}
+
+/// Tracks whether the converter input block has already supplied its buffer.
+private final class ConverterInputState: @unchecked Sendable {
+    var didProvideInput = false
 }

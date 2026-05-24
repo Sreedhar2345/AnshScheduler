@@ -13,7 +13,7 @@ enum AnshSchedulerVoiceMemoSelection: Equatable, Hashable, Sendable {
         case .preset(let preset):
             return preset.storageID
         case .custom(let id):
-            return AnshSchedulerVoiceMemoCatalog.customStoragePrefix + id.uuidString
+            return AnshSchedulerConstants.customVoiceMemoStoragePrefix + id.uuidString
         }
     }
 
@@ -26,8 +26,18 @@ enum AnshSchedulerVoiceMemoSelection: Equatable, Hashable, Sendable {
             self = .preset(preset)
             return
         }
-        if storageIdentifier.hasPrefix(AnshSchedulerVoiceMemoCatalog.customStoragePrefix) {
-            let rawID = String(storageIdentifier.dropFirst(AnshSchedulerVoiceMemoCatalog.customStoragePrefix.count))
+        if storageIdentifier.hasPrefix(AnshSchedulerConstants.customVoiceMemoStoragePrefix) {
+            let rawID = String(
+                storageIdentifier.dropFirst(AnshSchedulerConstants.customVoiceMemoStoragePrefix.count)
+            )
+            guard let uuid = UUID(uuidString: rawID) else { return nil }
+            self = .custom(uuid)
+            return
+        }
+        if storageIdentifier.hasPrefix(AnshSchedulerConstants.legacyCustomVoiceMemoStoragePrefix) {
+            let rawID = String(
+                storageIdentifier.dropFirst(AnshSchedulerConstants.legacyCustomVoiceMemoStoragePrefix.count)
+            )
             guard let uuid = UUID(uuidString: rawID) else { return nil }
             self = .custom(uuid)
             return
@@ -42,13 +52,21 @@ enum AnshSchedulerBundledVoiceMemo: String, CaseIterable, Identifiable, Codable,
     var id: String { rawValue }
 
     var storageID: String {
-        "preset.\(rawValue)"
+        AnshSchedulerConstants.presetVoiceMemoStoragePrefix + rawValue
     }
 
     init?(storageID: String) {
-        guard storageID.hasPrefix("preset.") else { return nil }
-        let raw = String(storageID.dropFirst("preset.".count))
-        self.init(rawValue: raw)
+        if storageID.hasPrefix(AnshSchedulerConstants.presetVoiceMemoStoragePrefix) {
+            let raw = String(storageID.dropFirst(AnshSchedulerConstants.presetVoiceMemoStoragePrefix.count))
+            self.init(rawValue: raw)
+            return
+        }
+        if storageID.hasPrefix(AnshSchedulerConstants.legacyPresetVoiceMemoStoragePrefix) {
+            let raw = String(storageID.dropFirst(AnshSchedulerConstants.legacyPresetVoiceMemoStoragePrefix.count))
+            self.init(rawValue: raw)
+            return
+        }
+        return nil
     }
 
     var displayName: String {
@@ -87,8 +105,6 @@ struct AnshSchedulerCustomVoiceMemo: Identifiable, Codable, Equatable, Sendable 
 }
 
 enum AnshSchedulerVoiceMemoCatalog {
-    static let customStoragePrefix = "custom."
-
     static var bundledMemos: [AnshSchedulerBundledVoiceMemo] {
         AnshSchedulerBundledVoiceMemo.allCases
     }

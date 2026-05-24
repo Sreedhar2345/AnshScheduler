@@ -5,18 +5,35 @@ actor AnshSchedulerNotificationService {
     static let shared = AnshSchedulerNotificationService()
 
     private let calendar = Calendar.current
-    private var didRequestAuthorization = false
 
-    func requestAuthorizationIfNeeded() async {
-        guard !didRequestAuthorization else { return }
-        didRequestAuthorization = true
-        _ = try? await UNUserNotificationCenter.current().requestAuthorization(
-            options: [.alert, .badge, .sound]
-        )
+    func requestAuthorizationIfNeeded() async -> Bool {
+        let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+
+        switch settings.authorizationStatus {
+        case .authorized, .provisional, .ephemeral:
+            return true
+        case .denied:
+            return false
+        case .notDetermined:
+            return (try? await center.requestAuthorization(options: [.alert, .badge, .sound])) ?? false
+        @unknown default:
+            return false
+        }
     }
 
     func syncReminders(for tasks: [AnshScheduledTask]) async {
         let center = UNUserNotificationCenter.current()
+        let settings = await center.notificationSettings()
+
+        guard settings.authorizationStatus == .authorized
+            || settings.authorizationStatus == .provisional
+            || settings.authorizationStatus == .ephemeral else {
+            return
+        }
+
+        AnshSchedulerVoiceMemoService.prepareAllCustomSoundsForNotifications()
+
         let prefix = AnshSchedulerConstants.reminderNotificationIDPrefix
 
         let pending = await center.pendingNotificationRequests()
@@ -27,8 +44,8 @@ actor AnshSchedulerNotificationService {
         )
         let legacyPrefixes = [
             prefix,
-            AnshSchedulerConstants.bundleIdentifier + ".dailyReminder.",
-            AnshSchedulerConstants.bundleIdentifier + ".dailyTask.",
+            AnshSchedulerConstants.legacyDailyReminderNotificationPrefix,
+            AnshSchedulerConstants.legacyDailyTaskNotificationPrefix,
         ]
         let managedIDs = Set(
             pending.map(\.identifier).filter { id in
@@ -77,10 +94,13 @@ actor AnshSchedulerNotificationService {
                 content.body = AnshSchedulerFormatting.taskSummary(for: task)
             }
             content.sound = AnshSchedulerVoiceMemoService.notificationSound(for: task.voiceMemoSelection)
+            let timeParts = calendar.dateComponents([.hour, .minute], from: task.reminderTime)
             content.userInfo = [
                 AnshSchedulerNotificationUserInfoKey.taskID: task.id.uuidString,
                 AnshSchedulerNotificationUserInfoKey.voiceMemoID: task.voiceMemoStorageID ?? "",
                 AnshSchedulerNotificationUserInfoKey.notes: task.trimmedNotes ?? "",
+                AnshSchedulerNotificationUserInfoKey.reminderHour: timeParts.hour ?? 0,
+                AnshSchedulerNotificationUserInfoKey.reminderMinute: timeParts.minute ?? 0,
             ]
 
             let trigger = UNCalendarNotificationTrigger(dateMatching: desiredComponents, repeats: repeats)

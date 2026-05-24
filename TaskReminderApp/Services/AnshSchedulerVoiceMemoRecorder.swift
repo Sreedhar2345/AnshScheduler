@@ -28,7 +28,7 @@ final class AnshSchedulerVoiceMemoRecorder: NSObject, ObservableObject {
         try session.setActive(true)
 
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("recorded-\(UUID().uuidString).m4a")
+            .appendingPathComponent("\(AnshSchedulerConstants.voiceMemoRecordingTempPrefix)\(UUID().uuidString).m4a")
 
         let settings: [String: Any] = [
             AVFormatIDKey: Int(kAudioFormatMPEG4AAC),

@@ -4,15 +4,13 @@ import UniformTypeIdentifiers
 import UserNotifications
 
 enum AnshSchedulerVoiceMemoService {
-    private static let customMemosDefaultsKey =
-        AnshSchedulerConstants.bundleIdentifier + ".customVoiceMemos.v1"
-
     private static var preferences: UserDefaults {
-        UserDefaults(suiteName: AnshSchedulerConstants.userDefaultsSuiteName) ?? .standard
+        AnshSchedulerPreferences.shared
     }
 
     static func customVoiceMemos() -> [AnshSchedulerCustomVoiceMemo] {
-        guard let data = preferences.data(forKey: customMemosDefaultsKey),
+        migrateLegacyStorageIfNeeded()
+        guard let data = preferences.data(forKey: AnshSchedulerConstants.customVoiceMemosStorageKey),
               let decoded = try? JSONDecoder().decode([AnshSchedulerCustomVoiceMemo].self, from: data) else {
             return []
         }
@@ -21,7 +19,7 @@ enum AnshSchedulerVoiceMemoService {
 
     static func saveCustomVoiceMemos(_ memos: [AnshSchedulerCustomVoiceMemo]) {
         guard let data = try? JSONEncoder().encode(memos) else { return }
-        preferences.set(data, forKey: customMemosDefaultsKey)
+        preferences.set(data, forKey: AnshSchedulerConstants.customVoiceMemosStorageKey)
     }
 
     static func deleteCustomVoiceMemo(id: UUID) {
@@ -105,16 +103,32 @@ enum AnshSchedulerVoiceMemoService {
             withExtension: preset.bundledMP3FileExtension,
             subdirectory: "VoiceMemos"
         )
+        ?? Bundle.main.url(
+            forResource: preset.bundledMP3ResourceName,
+            withExtension: preset.bundledMP3FileExtension
+        )
     }
 
     static func previewURL(for selection: AnshSchedulerVoiceMemoSelection) -> URL? {
+        playbackURL(for: selection)
+    }
+
+    /// URL for in-app playback (uses AVAudioSession playback to bypass silent mode).
+    static func playbackURL(for selection: AnshSchedulerVoiceMemoSelection) -> URL? {
         switch selection {
         case .none:
             return nil
         case .preset(let preset):
             return bundledMP3URL(for: preset)
+                ?? Bundle.main.url(forResource: preset.notificationSoundFilename, withExtension: nil)
         case .custom(let id):
             guard let memo = customVoiceMemos().first(where: { $0.id == id }) else { return nil }
+            installCustomSoundInLibraryIfNeeded(filename: memo.notificationSoundFilename)
+            if let libraryURL = try? librarySoundsDirectoryURL()
+                .appendingPathComponent(memo.notificationSoundFilename),
+               FileManager.default.fileExists(atPath: libraryURL.path) {
+                return libraryURL
+            }
             return try? customSoundsDirectoryURL().appendingPathComponent(memo.notificationSoundFilename)
         }
     }
@@ -126,7 +140,8 @@ enum AnshSchedulerVoiceMemoService {
             appropriateFor: nil,
             create: true
         )
-        let directory = appSupport.appendingPathComponent("VoiceMemos", isDirectory: true)
+        let directory = appSupport.appendingPathComponent(AnshSchedulerConstants.applicationSupportDirectoryName, isDirectory: true)
+            .appendingPathComponent(AnshSchedulerConstants.voiceMemosDirectoryName, isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         return directory
     }
@@ -144,8 +159,110 @@ enum AnshSchedulerVoiceMemoService {
     }
 
     static func prepareAllCustomSoundsForNotifications() {
+        migrateLegacyStorageIfNeeded()
+        for preset in AnshSchedulerBundledVoiceMemo.allCases {
+            installPresetSoundInLibraryIfNeeded(preset: preset)
+        }
         for memo in customVoiceMemos() {
             installCustomSoundInLibraryIfNeeded(filename: memo.notificationSoundFilename)
+        }
+    }
+
+    static func installPresetSoundInLibraryIfNeeded(preset: AnshSchedulerBundledVoiceMemo) {
+        let filename = preset.notificationSoundFilename
+        guard let source = Bundle.main.url(forResource: filename, withExtension: nil) else { return }
+        guard let destination = try? librarySoundsDirectoryURL().appendingPathComponent(filename) else { return }
+        if FileManager.default.fileExists(atPath: destination.path) {
+            try? FileManager.default.removeItem(at: destination)
+        }
+        try? FileManager.default.copyItem(at: source, to: destination)
+    }
+
+    /// One-time migration from pre-isolation voice memo paths and filenames.
+    private static func migrateLegacyStorageIfNeeded() {
+        guard !preferences.bool(forKey: AnshSchedulerConstants.legacyVoiceMemoStorageMigratedKey) else {
+            return
+        }
+
+        migrateLegacyVoiceMemoDirectoryIfNeeded()
+        migrateLegacyCAFFilenamesIfNeeded()
+        preferences.set(true, forKey: AnshSchedulerConstants.legacyVoiceMemoStorageMigratedKey)
+    }
+
+    private static func migrateLegacyVoiceMemoDirectoryIfNeeded() {
+        guard let appSupport = try? FileManager.default.url(
+            for: .applicationSupportDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: false
+        ),
+              let newDirectory = try? customSoundsDirectoryURL() else {
+            return
+        }
+
+        let oldDirectory = appSupport.appendingPathComponent(
+            AnshSchedulerConstants.legacyVoiceMemosDirectoryName,
+            isDirectory: true
+        )
+        guard FileManager.default.fileExists(atPath: oldDirectory.path),
+              let files = try? FileManager.default.contentsOfDirectory(
+                  at: oldDirectory,
+                  includingPropertiesForKeys: nil
+              ) else {
+            return
+        }
+
+        for fileURL in files {
+            let destination = newDirectory.appendingPathComponent(fileURL.lastPathComponent)
+            guard !FileManager.default.fileExists(atPath: destination.path) else { continue }
+            try? FileManager.default.copyItem(at: fileURL, to: destination)
+        }
+    }
+
+    private static func migrateLegacyCAFFilenamesIfNeeded() {
+        guard let data = preferences.data(forKey: AnshSchedulerConstants.customVoiceMemosStorageKey),
+              var memos = try? JSONDecoder().decode([AnshSchedulerCustomVoiceMemo].self, from: data) else {
+            return
+        }
+
+        var changed = false
+        for index in memos.indices {
+            let filename = memos[index].notificationSoundFilename
+            guard filename.hasPrefix(AnshSchedulerConstants.legacyVoiceMemoCAFFilePrefix) else { continue }
+
+            let suffix = String(filename.dropFirst(AnshSchedulerConstants.legacyVoiceMemoCAFFilePrefix.count))
+            let newFilename = AnshSchedulerConstants.voiceMemoCAFFilePrefix + suffix
+            renameVoiceMemoFile(from: filename, to: newFilename)
+            memos[index] = AnshSchedulerCustomVoiceMemo(
+                id: memos[index].id,
+                displayName: memos[index].displayName,
+                notificationSoundFilename: newFilename
+            )
+            changed = true
+        }
+
+        if changed {
+            saveCustomVoiceMemos(memos)
+        }
+    }
+
+    private static func renameVoiceMemoFile(from oldFilename: String, to newFilename: String) {
+        if let directory = try? customSoundsDirectoryURL() {
+            let oldURL = directory.appendingPathComponent(oldFilename)
+            let newURL = directory.appendingPathComponent(newFilename)
+            if FileManager.default.fileExists(atPath: oldURL.path),
+               !FileManager.default.fileExists(atPath: newURL.path) {
+                try? FileManager.default.moveItem(at: oldURL, to: newURL)
+            }
+        }
+
+        if let libraryDirectory = try? librarySoundsDirectoryURL() {
+            let oldURL = libraryDirectory.appendingPathComponent(oldFilename)
+            let newURL = libraryDirectory.appendingPathComponent(newFilename)
+            if FileManager.default.fileExists(atPath: oldURL.path) {
+                try? FileManager.default.removeItem(at: newURL)
+                try? FileManager.default.moveItem(at: oldURL, to: newURL)
+            }
         }
     }
 

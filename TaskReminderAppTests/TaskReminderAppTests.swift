@@ -143,4 +143,81 @@ final class AnshSchedulerStoreTests: XCTestCase {
         XCTAssertEqual(reloadedStore.scheduledTasks.count, 1)
         XCTAssertEqual(reloadedStore.scheduledTasks.first?.trimmedNotes, "Bring water")
     }
+
+    func testVoiceMemoStorageUsesBundleScopedPrefixes() {
+        let preset = AnshSchedulerBundledVoiceMemo.wakeUp
+        XCTAssertTrue(preset.storageID.hasPrefix(AnshSchedulerConstants.presetVoiceMemoStoragePrefix))
+
+        let customID = UUID()
+        let selection = AnshSchedulerVoiceMemoSelection.custom(customID)
+        XCTAssertEqual(
+            selection.storageIdentifier,
+            AnshSchedulerConstants.customVoiceMemoStoragePrefix + customID.uuidString
+        )
+
+        XCTAssertEqual(
+            AnshSchedulerVoiceMemoSelection(storageIdentifier: "custom.\(customID.uuidString)"),
+            .custom(customID)
+        )
+    }
+
+    func testNextFireDateForDailyTask() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+
+        var referenceComponents = DateComponents()
+        referenceComponents.year = 2026
+        referenceComponents.month = 5
+        referenceComponents.day = 23
+        referenceComponents.hour = 13
+        referenceComponents.minute = 0
+        let reference = calendar.date(from: referenceComponents)!
+
+        var reminderComponents = referenceComponents
+        reminderComponents.hour = 14
+        let reminderTime = calendar.date(from: reminderComponents)!
+
+        let task = AnshScheduledTask(
+            name: "Daily",
+            reminderTime: reminderTime,
+            frequency: .daily
+        )
+
+        let next = task.nextReminderFireDate(from: reference, calendar: calendar)
+        let nextParts = calendar.dateComponents([.day, .hour, .minute], from: try! XCTUnwrap(next))
+        XCTAssertEqual(nextParts.day, 23)
+        XCTAssertEqual(nextParts.hour, 14)
+        XCTAssertEqual(nextParts.minute, 0)
+    }
+
+    func testIsReminderDueWithinGraceWindow() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+
+        var reminderComponents = DateComponents()
+        reminderComponents.year = 2026
+        reminderComponents.month = 5
+        reminderComponents.day = 23
+        reminderComponents.hour = 9
+        reminderComponents.minute = 0
+        let reminderTime = calendar.date(from: reminderComponents)!
+
+        let task = AnshScheduledTask(
+            name: "Morning",
+            reminderTime: reminderTime,
+            frequency: .daily,
+            voiceMemoStorageID: AnshSchedulerVoiceMemoSelection.preset(.wakeUp).storageIdentifier
+        )
+
+        var dueReference = reminderComponents
+        dueReference.second = 10
+        let dueDate = calendar.date(from: dueReference)!
+
+        XCTAssertTrue(task.isReminderDueForPlayback(at: dueDate, calendar: calendar))
+
+        var lateReference = reminderComponents
+        lateReference.second = 45
+        let lateDate = calendar.date(from: lateReference)!
+        XCTAssertFalse(task.isReminderDueForPlayback(at: lateDate, calendar: calendar))
+    }
 }
